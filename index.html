@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#211e1f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>My Vehicle</title>
+<style>
+:root{--bg:#211e1f;--ink:#f7f4f0;--tile:#cbd4dc;--tile2:#f7f4f0;--accent:#ffcf4b;--muted:#b8b4b3;--line:#484345}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{padding:26px 20px 18px;display:flex;align-items:center;gap:15px;border-bottom:1px solid var(--line)}
+.logo{width:64px;height:64px;border-radius:18px;background:#fff;border:4px solid #ff1717;color:#222;display:grid;place-items:center;font-size:27px;font-weight:900;flex-shrink:0}
+.brand{font-size:25px;font-weight:900;letter-spacing:1px}.tag{font-size:13px;color:var(--muted);margin-top:5px}
+main{max-width:780px;margin:auto;padding:18px 16px 40px}
+.welcome{padding:18px 4px 24px}.welcome h1{font-size:clamp(27px,7vw,44px);line-height:1.06;margin:0 0 8px}.welcome p{margin:0;color:#d5d0cf;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr;gap:13px}
+.menu{border:0;border-radius:0 54px 54px 0;min-height:88px;background:var(--tile);color:#211e1f;text-align:left;padding:18px 22px;display:flex;align-items:center;gap:16px;box-shadow:8px 0 0 var(--tile2);transition:transform .12s}
+.menu:active{transform:scale(.985)}.menu .ico{font-size:30px;width:42px;text-align:center}.menu strong{font-size:clamp(21px,5.8vw,31px);line-height:1.1;display:block}.menu small{display:block;font-size:13px;margin-top:6px;color:#44494e}
+.page{display:none}.page.active{display:block}.back{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:10px 14px;margin:0 0 18px}
+h2{font-size:28px;margin:0 0 8px} .intro{color:var(--muted);margin:0 0 20px;line-height:1.45}
+.card{background:#2b2728;border:1px solid #403a3c;border-radius:18px;padding:17px;margin:12px 0}
+label{display:block;font-size:13px;color:#e0dcda;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:13px;border:1px solid #5a5355;border-radius:11px;background:#181617;color:#fff;outline:none}
+textarea{min-height:90px;resize:vertical}
+.action{border:0;border-radius:12px;padding:13px 16px;background:#f7f4f0;color:#211e1f;font-weight:800;margin-top:14px}.action.alt{background:#cbd4dc}.action.warn{background:#ffc85c}.action.danger{background:#ff7e7e}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+.item{padding:14px;border:1px solid #51494c;border-radius:13px;margin:10px 0;overflow-wrap:anywhere}.item strong{display:block;font-size:16px;margin-bottom:5px}.item small{color:#c5bfc0}
+.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed #5b5356;border-radius:13px}
+#docsList img{max-width:100%;max-height:240px;object-fit:contain;border-radius:10px;display:block;margin:10px 0}
+.notice{font-size:12px;color:#c8c2c3;line-height:1.5;margin-top:12px}
+.hidden{display:none!important}
+footer{text-align:center;color:#8d8789;font-size:12px;padding:28px 12px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}.menu{min-height:110px}.menu strong{font-size:25px}.menu .ico{font-size:34px}}
+.onhome header{display:none}
+#splash{position:fixed;inset:0;z-index:99;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:70px 20px 80px;transition:opacity .5s}
+#splash.hide{opacity:0;pointer-events:none}#splash h1{align-self:flex-start;margin:0 0 0 24px;font-size:clamp(34px,11vw,52px);font-weight:900}#splash .t{font-size:clamp(30px,9vw,46px);text-align:center}#splash .l{font-size:18px}
+.hero{position:relative;margin:-18px -16px 0}.sky{height:150px;position:relative;overflow:hidden;background:linear-gradient(#bfe0f7,#f4efe0)}
+.sun{position:absolute;top:14px;right:34px;width:66px;height:66px;border-radius:50%;background:#ffd23f;box-shadow:0 0 0 9px #ffd23f55,0 0 40px 18px #ffd23f88}
+.cloud{position:absolute;top:78px;right:120px;width:90px;height:26px;border-radius:30px;background:#fff;box-shadow:30px -12px 0 -2px #fff,-24px -6px 0 -4px #fff}
+.moon{display:none;position:absolute;top:16px;right:38px;width:60px;height:60px;border-radius:50%;box-shadow:inset -16px 4px 0 0 #f4f1d0;transform:rotate(-15deg);filter:drop-shadow(0 0 10px #fff8c0)}
+.hero.night .sky{background:linear-gradient(#0b1030,#2b3766)}.hero.night .sun,.hero.night .cloud{display:none}.hero.night .moon{display:block}
+.hero.night .sky::before{content:"";position:absolute;inset:0;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(1.5px 1.5px at 80px 80px,#fff,transparent),radial-gradient(2px 2px at 150px 25px,#fff,transparent),radial-gradient(1.5px 1.5px at 230px 100px,#fff,transparent),radial-gradient(2px 2px at 290px 45px,#fff,transparent),radial-gradient(1.5px 1.5px at 60px 125px,#fff,transparent)}
+.hi{position:absolute;left:150px;bottom:10px;font-size:22px;font-weight:800;color:#211e1f}.hero.night .hi{color:#fff}
+.avatar{position:absolute;left:16px;top:88px;width:112px;height:112px;border-radius:50%;border:7px solid #211e1f;background:#3a3436 center/cover;display:grid;place-items:center;font-size:42px;cursor:pointer}
+.who{height:66px;padding:10px 16px 0 150px;font-size:clamp(24px,7vw,34px);font-weight:800;cursor:pointer}.grid.home{margin-top:22px}
+.menu.blank{min-height:88px}
+.dt{position:relative;display:flex;gap:8px}.dt .txt{flex:1;width:auto}.dt .pick{flex:none;width:52px;border:1px solid #5a5355;border-radius:11px;background:#181617;color:#fff;font-size:22px;padding:0}.dt .ghost{position:absolute;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+</style>
+</head>
+<body class="onhome">
+<div id="splash"><h1>MY VEHICLE</h1><div class="t">Your personal app</div><div class="l">Loading.....</div></div>
+<header><div class="logo">MV</div><div><div class="brand">MY VEHICLE</div><div class="tag">Your personal vehicle companion</div></div></header>
+<main>
+<section id="home" class="page active">
+  <div class="hero" id="hero"><div class="sky"><div class="sun"></div><div class="cloud"></div><div class="moon"></div><div class="hi">Welcome back</div></div><div class="avatar" id="avatar" title="Tap to change photo">👤</div><input type="file" id="avatarFile" accept="image/*" class="hidden"><div class="who" id="userName">Siam Sikdar</div></div>
+  <div class="grid home">
+    <button class="menu" data-open="docs"><span class="ico">📁</span><span><strong>My V-Doc</strong><small>Save photos and scanned documents</small></span></button>
+    <button class="menu" data-open="service"><span class="ico">⏰</span><span><strong>Service Alert</strong><small>Set date and time reminders</small></span></button>
+    <button class="menu" data-open="fuel"><span class="ico">⛽</span><span><strong>Fuel Spending</strong><small>Refuels, history and monthly reports</small></span></button>
+    <button class="menu blank" aria-label="Coming soon"></button>
+  </div>
+</section>
+
+<section id="docs" class="page">
+<button class="back" data-home>← Home</button><h2>My V-Doc</h2><p class="intro">Add a photo from your phone, take a picture with the camera, or save a scanned copy. Files are stored in this browser on this device.</p>
+<div class="card">
+<label for="docType">Document type</label><select id="docType"><option>Registration</option><option>Driving licence</option><option>Tax token</option><option>Insurance</option><option>Fitness certificate</option><option>Service receipt</option><option>Other</option></select>
+<label for="docFile">Choose photo or scanned copy</label><input id="docFile" type="file" accept="image/*,.pdf" capture="environment">
+<div class="row"><button class="action" id="saveDoc">Save document</button><button class="action alt" id="scanHelp">Scanning tips</button></div>
+<div id="scanTip" class="notice hidden">Place the paper on a flat, bright surface, keep all four corners visible, take a clear photo, then save it here. For a PDF scan, choose the PDF file from your phone.</div>
+<p class="notice">Note: saved files stay on this device/browser. Export or back up important originals separately. Very large files may exceed browser storage limits.</p>
+</div>
+<div id="docsList"></div>
+</section>
+
+<section id="service" class="page">
+<button class="back" data-home>← Home</button><h2>Service Alert</h2><p class="intro">Set a reminder for an oil change, servicing, registration renewal or another task.</p>
+<div class="card">
+<label for="serviceTitle">Reminder name</label><input id="serviceTitle" placeholder="e.g. Engine oil change">
+<label for="serviceDateText">Date (type it, or tap 📅)</label>
+<div class="dt"><input id="serviceDateText" class="txt" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off"><button type="button" class="pick" id="pickDate" aria-label="Pick date">📅</button><input id="serviceDate" type="date" class="ghost" tabindex="-1"></div>
+<label for="serviceTimeText">Time, 24-hour (type it, or tap 🕒)</label>
+<div class="dt"><input id="serviceTimeText" class="txt" inputmode="numeric" placeholder="HH:MM e.g. 14:30" maxlength="5" autocomplete="off"><button type="button" class="pick" id="pickTime" aria-label="Pick time">🕒</button><input id="serviceTime" type="time" class="ghost" tabindex="-1"></div>
+<label for="serviceNote">Notes (optional)</label><textarea id="serviceNote" placeholder="Odometer, workshop, parts needed..."></textarea>
+<button class="action" id="saveService">Save reminder</button>
+<p class="notice">When the app is open, the reminder rings, vibrates and shows a notification at the set time. To be alerted when the app is closed, tap “Add to calendar alarm” on a reminder (your phone calendar will ring).</p>
+</div><div id="serviceList"></div>
+</section>
+
+<section id="fuel" class="page">
+<button class="back" data-home>← Home</button><h2>Fuel Spending</h2><div id="fuelHost"></div>
+</section>
+
+<footer>MY VEHICLE · Personal use</footer>
+<template id="fuelTpl"><style>
+:host{display:block;color-scheme:dark;color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--panel:#2b2728;--panel2:#352f31;--text:#f7f4f0;--muted:#b8b4b3;--green:#cbd4dc;--line:#403a3c;--red:#ff9a8b}
+*{box-sizing:border-box}
+
+h2{font-size:17px;margin:0 0 14px}.sub{color:var(--muted);font-size:13px}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}.stat,.card{background:#2b2728;border:1px solid var(--line);border-radius:18px;padding:16px}.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:25px;font-weight:750;margin:6px 0 0;letter-spacing:-.5px;overflow-wrap:anywhere}.unit{font-size:13px;color:var(--muted);font-weight:500}
+.card{margin:14px 0}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}label{font-size:13px;color:#e0dcda}input,textarea{width:100%;min-width:0;background:#181617;border:1px solid #5a5355;border-radius:11px;color:var(--text);padding:12px;font:inherit;outline:none}input:focus,textarea:focus{border-color:var(--green)}input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}.checkrow{display:flex;align-items:flex-start;gap:10px;background:var(--panel2);padding:12px;border-radius:12px}.checkrow label{font-size:13px;line-height:1.4}.btn{border:0;border-radius:12px;padding:13px 15px;font:700 15px system-ui;cursor:pointer}.primary{background:var(--green);color:#211e1f;width:100%;margin-top:13px}.secondary{background:#3a3436;color:var(--text);border:1px solid #51494c}.danger{color:var(--red);background:#35201e;border:1px solid #633b36}.tabs{display:flex;gap:8px;margin:18px 0 12px}.tab{flex:1;padding:11px 8px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--muted);font-weight:650}.tab.active{background:var(--green);color:#211e1f;border-color:var(--green)}.entry{padding:13px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}.entry:last-child{border-bottom:0}.entry strong{display:block}.entry small{display:block;color:var(--muted);margin-top:4px}.right{text-align:right;white-space:nowrap}.right strong{font-size:17px}.pill{display:inline-block;font-size:11px;padding:3px 7px;border-radius:7px;background:#3a4046;color:var(--green);margin-top:5px}.empty{color:var(--muted);padding:16px 0;text-align:center}.note{border:1px solid #4c4a2c;background:#292819;border-radius:12px;padding:12px;color:#e6dfad;font-size:13px;margin-top:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions .btn{flex:1}.hidden{display:none!important}.footer{text-align:center;color:var(--muted);font-size:12px;margin:22px 0}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.stat .value{font-size:23px}}
+</style>
+<section class="card" style="margin-top:0">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+  <div><h2 style="margin-bottom:4px">Bangladesh Octane Price</h2><div class="sub" id="priceStatus"></div></div>
+  <div style="font-size:24px;font-weight:800" id="priceDisplay">৳165<span class="unit">/L</span></div>
+ </div>
+ <div class="sub" id="priceChecked" style="margin-top:8px"></div>
+</section>
+<section class="stats">
+ <div class="stat"><div class="label">Average mileage*</div><div class="value" id="avg">— <span class="unit">km/L</span></div></div>
+ <div class="stat"><div class="label">Total fuel spending</div><div class="value" id="spend">৳0</div></div>
+ <div class="stat"><div class="label">Total fuel added</div><div class="value" id="litres">0 <span class="unit">L</span></div></div>
+ <div class="stat"><div class="label">Last odometer</div><div class="value" id="odo">— <span class="unit">km</span></div></div>
+</section>
+<div class="tabs"><button class="tab active" data-tab="add">＋ Add fuel</button><button class="tab" data-tab="history">Fuel history</button><button class="tab" data-tab="report">Monthly Reports</button></div>
+<section class="card" id="panel-add">
+<h2>Add a refueling record</h2><p class="sub">Enter the odometer reading shown on your bike when you refuel.</p>
+<form id="fuelForm">
+<div class="formgrid">
+ <div class="field"><label for="date">Date & time</label><input id="date" type="datetime-local" required></div>
+ <div class="field"><label for="odometer">Odometer (km)</label><input id="odometer" type="number" min="0" step="0.1" placeholder="e.g. 5250" required></div>
+ <div class="field"><label for="amount">Amount paid (৳)</label><input id="amount" type="number" min="0" step="0.01" placeholder="e.g. 500"></div>
+ <div class="field"><label for="price">Octane price per litre (৳/L)</label><input id="price" type="number" min="0.01" step="0.01" value="165" placeholder="e.g. 165" required></div>
+ <div class="field"><label for="litreInput">Litres added (L)</label><input id="litreInput" type="number" min="0.001" step="0.001" placeholder="e.g. 4.00"></div>
+ <div class="field"><label for="station">Station / note (optional)</label><input id="station" type="text" maxlength="80" placeholder="e.g. Shell, regular fuel"></div>
+ <div class="field full"><div class="checkrow"><input id="fullTank" type="checkbox"><label for="fullTank"><strong>Tank is full after this refuel</strong><br>Tick this only when you fill the tank to the same full level. This helps calculate mileage more accurately.</label></div></div>
+</div>
+<div class="note">You can enter either amount or litres. The app calculates the other using price per litre. If both are entered, it checks that they roughly match.</div>
+<button class="btn primary" type="submit">Save fuel record</button>
+</form>
+</section>
+<section class="card hidden" id="panel-history"><h2>Fuel history</h2><div id="historyList" class="sub">No entries yet.</div><div class="actions"><button class="btn secondary" id="exportBtn">Export backup (JSON)</button><button class="btn secondary" id="csvBtn">Export CSV</button></div><p class="sub">Keep a backup if you change or reset your browser. Data stays on this device.</p></section>
+<section class="card hidden" id="panel-report"><h2>Reports</h2><div id="reportContent"></div><div class="actions"><button class="btn danger" id="clearBtn">Delete all records</button></div><p class="sub">Deletion cannot be undone unless you have exported a backup.</p></section>
+<p class="footer">My Fuel Tracker · Offline-first · Data saved in this browser on this device</p>
+</template>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const get=(key, fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+const set=(key,val)=>localStorage.setItem(key,JSON.stringify(val));
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===name));window.scrollTo(0,0);if(name==='docs')renderDocs();if(name==='service')renderServices();document.body.classList.toggle('onhome',name==='home');if(name==='fuel')document.dispatchEvent(new Event('fuelshown'))}
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.open)));
+document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',()=>showPage('home')));
+
+
+// Docs: store image/PDF as data URL in local browser storage.
+let docs=get('mv_docs',[]);
+$('saveDoc').addEventListener('click',()=>{
+ const file=$('docFile').files[0], dtype=$('docType').value;
+ if(!file){alert('Please choose a photo or PDF first.');return}
+ const title=dtype==='Other'?file.name.replace(/\.[^.]+$/,''):dtype;
+ if(file.size>3*1024*1024){alert('This file is larger than 3 MB. Please use a smaller photo/PDF to avoid filling browser storage.');return}
+ const reader=new FileReader();
+ reader.onload=()=>{docs=get('mv_docs',[]);docs.unshift({id:Date.now(),title,type:$('docType').value,name:file.name,mime:file.type,data:reader.result,added:new Date().toLocaleDateString()});try{set('mv_docs',docs);$('docFile').value='';renderDocs();alert('Document saved on this device.')}catch(e){alert('Storage is full. Try a smaller photo or delete old files.')}};
+ reader.readAsDataURL(file);
+});
+$('scanHelp').addEventListener('click',()=>$('scanTip').classList.toggle('hidden'));
+function renderDocs(){
+ docs=get('mv_docs',[]);const host=$('docsList');
+ if(!docs.length){host.innerHTML='<div class="empty">No documents saved yet. Add your first document above.</div>';return}
+ host.innerHTML=docs.map(d=>`<div class="item"><strong>${d.title===d.type?esc(d.type):esc(d.title)+' · '+esc(d.type)}</strong><small>${esc(d.name)} · Added ${esc(d.added)}</small>${d.mime&&d.mime.startsWith('image/')?`<img src="${d.data}" alt="${esc(d.title)}">`:''}<div class="row"><button class="action alt" onclick="openDoc(${d.id})">Open / view</button><button class="action danger" onclick="deleteDoc(${d.id})">Delete</button></div></div>`).join('');
+}
+window.openDoc=id=>{const d=get('mv_docs',[]).find(x=>x.id===id);if(!d)return;const w=window.open();if(w){if(d.mime==='application/pdf'){w.location.href=d.data}else{w.document.write(`<title>${esc(d.title)}</title><img style="max-width:100%" src="${d.data}">`)}}else alert('Your browser blocked the new window. Allow pop-ups to view this file.')};
+window.deleteDoc=id=>{if(confirm('Delete this saved document?')){set('mv_docs',get('mv_docs',[]).filter(x=>x.id!==id));renderDocs()}};
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+// Service alerts: browser notifications and in-page due checks.
+let services=get('mv_services',[]);
+$('saveService').addEventListener('click',()=>{
+ const title=$('serviceTitle').value.trim(),date=$('serviceDate').value,time=$('serviceTime').value;
+ if(!title||!date||!time){alert('Enter a reminder name, a valid date (DD/MM/YYYY) and a valid time (HH:MM, 24-hour).');return}
+ services=get('mv_services',[]);services.push({id:Date.now(),title,date,time,note:$('serviceNote').value.trim(),notified:false,done:false});set('mv_services',services);
+ $('serviceTitle').value='';$('serviceNote').value='';renderServices();
+ if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();
+ alert('Reminder saved. Keep this app open for browser reminders.');
+});
+function renderServices(){
+ services=get('mv_services',[]);const host=$('serviceList');
+ if(!services.length){host.innerHTML='<div class="empty">No service reminders yet.</div>';return}
+ host.innerHTML=services.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(s=>`<div class="item"><strong>${esc(s.title)} ${s.done?'✓ Completed':''}</strong><small>${esc(s.date)} at ${esc(s.time)}</small>${s.note?`<p>${esc(s.note)}</p>`:''}<div class="row"><button class="action alt" onclick="addToCalendar(${s.id})">Add to calendar alarm</button><button class="action alt" onclick="completeService(${s.id})">${s.done?'Mark pending':'Mark done'}</button><button class="action danger" onclick="deleteService(${s.id})">Delete</button></div></div>`).join('');
+}
+window.completeService=id=>{const a=get('mv_services',[]);const s=a.find(x=>x.id===id);if(s)s.done=!s.done;set('mv_services',a);renderServices()};
+window.deleteService=id=>{if(confirm('Delete this reminder?')){set('mv_services',get('mv_services',[]).filter(x=>x.id!==id));renderServices()}};
+function notify(t,b){try{if(navigator.serviceWorker&&location.protocol.startsWith('http')){navigator.serviceWorker.ready.then(r=>r.showNotification(t,{body:b,vibrate:[300,100,300],icon:'icon-192.png'}));return}new Notification(t,{body:b})}catch(e){}}
+function ring(msg){let tm=null,ac=null;try{ac=new(window.AudioContext||window.webkitAudioContext)();ac.resume();let n=0;const beep=()=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.3;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.4);if(navigator.vibrate)navigator.vibrate([400,200,400]);if(++n>=30)clearInterval(tm)};beep();tm=setInterval(beep,1000)}catch(e){}
+ setTimeout(()=>{alert('⏰ '+msg);clearInterval(tm);try{ac&&ac.close()}catch(e){}},300)}
+window.addToCalendar=id=>{const s=get('mv_services',[]).find(x=>x.id===id);if(!s)return;const d=s.date.replace(/-/g,'')+'T'+s.time.replace(':','')+'00',c=t=>String(t||'').replace(/[,;\r\n]/g,' ');const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MyVehicle//EN','BEGIN:VEVENT','UID:'+s.id+'@myvehicle','DTSTAMP:'+d,'DTSTART:'+d,'SUMMARY:'+c(s.title),'DESCRIPTION:'+c(s.note),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+c(s.title),'TRIGGER:PT0S','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='service-reminder.ics';a.click()};
+function checkDue(){
+ const now=new Date(), arr=get('mv_services',[]);let changed=false;
+ arr.forEach(s=>{if(s.done||s.notified)return;const at=new Date(`${s.date}T${s.time}:00`);if(now>=at){s.notified=true;changed=true;const msg=`My Vehicle reminder: ${s.title}`;if('Notification'in window&&Notification.permission==='granted'){notify(msg,`Due ${s.date} at ${s.time}`)}ring(msg);}});
+ if(changed)set('mv_services',arr);
+}
+setInterval(checkDue,15000);
+
+
+
+// Home banner, profile photo, splash
+const hero=$('hero');function setSky(){const h=new Date().getHours();hero.classList.toggle('night',h<6||h>=18)}
+setSky();document.addEventListener('visibilitychange',()=>{if(!document.hidden)setSky()});
+function showAvatar(){const a=$('avatar'),p=get('mv_avatar',null);a.style.backgroundImage=p?`url(${p})`:'';a.textContent=p?'':'👤'}
+$('avatar').addEventListener('click',()=>$('avatarFile').click());
+$('avatarFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),u=URL.createObjectURL(f);img.onload=()=>{const s=320,c=document.createElement('canvas');c.width=c.height=s;const m=Math.min(img.width,img.height);c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);try{set('mv_avatar',c.toDataURL('image/jpeg',.85))}catch(x){alert('Could not save the photo.')}URL.revokeObjectURL(u);showAvatar()};img.src=u;e.target.value=''});
+$('userName').textContent=get('mv_name','Siam Sikdar');
+$('userName').addEventListener('click',()=>{const n=prompt('Your name',get('mv_name','Siam Sikdar'));if(n&&n.trim()){set('mv_name',n.trim());$('userName').textContent=n.trim()}});
+showAvatar();
+setTimeout(()=>$('splash').classList.add('hide'),2200);setTimeout(()=>$('splash').remove(),2800);
+
+// Service alert: date/time by keyboard or picker
+(function(){
+ const dT=$('serviceDateText'),d=$('serviceDate'),tT=$('serviceTimeText'),t=$('serviceTime'),pad=n=>String(n).padStart(2,'0');
+ const fmtDate=v=>{const x=v.replace(/\D/g,'').slice(0,8);return x.length>4?x.slice(0,2)+'/'+x.slice(2,4)+'/'+x.slice(4):x.length>2?x.slice(0,2)+'/'+x.slice(2):x};
+ const fmtTime=v=>{const x=v.replace(/\D/g,'').slice(0,4);return x.length>2?x.slice(0,2)+':'+x.slice(2):x};
+ dT.addEventListener('input',()=>{dT.value=fmtDate(dT.value);const m=dT.value.match(/^(\d\d)\/(\d\d)\/(\d{4})$/);let ok=false;if(m){const x=new Date(+m[3],+m[2]-1,+m[1]);ok=x.getFullYear()==+m[3]&&x.getMonth()==+m[2]-1&&x.getDate()==+m[1]}d.value=ok?m[3]+'-'+m[2]+'-'+m[1]:''});
+ d.addEventListener('change',()=>{const m=d.value.match(/^(\d{4})-(\d\d)-(\d\d)$/);dT.value=m?m[3]+'/'+m[2]+'/'+m[1]:''});
+ tT.addEventListener('input',()=>{tT.value=fmtTime(tT.value);const m=tT.value.match(/^(\d\d):(\d\d)$/);t.value=m&&+m[1]<24&&+m[2]<60?tT.value:''});
+ t.addEventListener('change',()=>{tT.value=t.value});
+ $('pickDate').addEventListener('click',()=>{try{d.showPicker()}catch(e){d.focus();d.click()}});
+ $('pickTime').addEventListener('click',()=>{try{t.showPicker()}catch(e){t.focus();t.click()}});
+ const n=new Date();d.value=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());t.value=pad(n.getHours())+':'+pad(n.getMinutes());
+ d.dispatchEvent(new Event('change'));t.dispatchEvent(new Event('change'));
+})();
+
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+<script>
+(function(){
+const host=document.getElementById('fuelHost');
+const root=host.attachShadow({mode:'open'});
+root.appendChild(document.getElementById('fuelTpl').content.cloneNode(true));
+const KEY='myFuelTracker.records.v1';
+const SETTINGS_KEY='myFuelTracker.settings.v1';
+let settings={tankCapacity:13,octanePrice:165};
+try{settings={...settings,...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')}}catch(e){}
+let records=[];
+try{records=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(records))records=[]}catch(e){records=[]}
+const $=id=>root.getElementById(id);
+const money=n=>'৳'+Number(n||0).toLocaleString('en-BD',{maximumFractionDigits:2});
+const num=(n,d=2)=>Number(n||0).toLocaleString('en-BD',{maximumFractionDigits:d});
+function save(){localStorage.setItem(KEY,JSON.stringify(records));render()}
+function saveSettings(){settings.tankCapacity=Math.max(1,Number($('tankCapacity')?.value||settings.tankCapacity||13));settings.octanePrice=Math.max(.01,Number($('price')?.value||settings.octanePrice||165));localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}
+function sorted(){return [...records].sort((a,b)=>new Date(a.date)-new Date(b.date))}
+function calc(){const s=sorted();let segments=[],lastFull=null,litresSince=0;
+ for(const r of s){litresSince+=Number(r.litres);if(r.fullTank){if(lastFull){const distance=Number(r.odo)-Number(lastFull.odo);if(distance>0&&litresSince>0)segments.push({distance,litres:litresSince,kmpl:distance/litresSince,start:lastFull.date,end:r.date});}lastFull=r;litresSince=0;}}
+ const totalL=s.reduce((a,r)=>a+Number(r.litres),0),totalCost=s.reduce((a,r)=>a+Number(r.amount),0);
+ const valid=segments.filter(x=>x.distance>0&&x.litres>0);
+ const avg=valid.length?valid.reduce((a,x)=>a+x.distance,0)/valid.reduce((a,x)=>a+x.litres,0):null;
+ return {s,segments:valid,totalL,totalCost,avg};
+}
+function render(){const c=calc();$('avg').innerHTML=(c.avg?num(c.avg,2):'—')+' <span class="unit">km/L</span>';$('spend').textContent=money(c.totalCost);$('litres').innerHTML=num(c.totalL,3)+' <span class="unit">L</span>';$('odo').innerHTML=(c.s.length?num(c.s[c.s.length-1].odo,1):'—')+' <span class="unit">km</span>';
+ const list=$('historyList');if(!c.s.length)list.innerHTML='<div class="empty">No fuel records yet. Add your first refueling above.</div>';else list.innerHTML=[...c.s].reverse().map(r=>`<div class="entry"><div><strong>${escapeHtml(r.station||'Fuel refill')}</strong><small>${new Date(r.date).toLocaleString()} · ${num(r.odo,1)} km</small><small>${num(r.litres,3)} L × ${money(r.price)}/L</small>${r.fullTank?'<span class="pill">FULL TANK CHECKPOINT</span>':''}</div><div class="right"><strong>${money(r.amount)}</strong><small><button class="btn secondary" style="padding:5px 8px;margin-top:6px" onclick="deleteRecord('${r.id}')">Delete</button></small></div></div>`).join('');
+ const monthly={};for(const r of c.s){const k=r.date.slice(0,7);monthly[k]??={cost:0,litres:0,count:0};monthly[k].cost+=Number(r.amount);monthly[k].litres+=Number(r.litres);monthly[k].count++}
+ let report=`<div class="stat" style="margin-bottom:12px"><div class="label">Mileage segments measured between full-tank checkpoints</div><div class="value">${c.segments.length}</div></div>`;
+ report+=c.segments.length?c.segments.slice().reverse().map(x=>`<div class="entry"><div><strong>${num(x.distance,1)} km driven</strong><small>${new Date(x.start).toLocaleDateString()} → ${new Date(x.end).toLocaleDateString()}</small><small>${num(x.litres,3)} L used (refuels between checkpoints)</small></div><div class="right"><strong>${num(x.kmpl,2)} km/L</strong></div></div>`).join(''):'<div class="empty">Mileage will appear after you record two full-tank checkpoints, with partial refuels in between.</div>';
+ const months=Object.keys(monthly).sort().reverse();
+ const now=new Date();
+ const currentMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+ const selectedMonth=/^\d{4}-\d{2}$/.test(window.reportSelectedMonth||'')?window.reportSelectedMonth:currentMonth;
+ window.reportSelectedMonth=selectedMonth;
+ const selected=monthly[selectedMonth]||{cost:0,litres:0,count:0};
+ const years=[...new Set([...c.s.map(r=>String(r.date).slice(0,4)),String(now.getFullYear()),selectedMonth.slice(0,4)])].sort().reverse();
+ const selectedYear=selectedMonth.slice(0,4);
+ window.reportSelectedYear=selectedYear;
+ const yearRecords=c.s.filter(r=>String(r.date).slice(0,4)===selectedYear);
+ const yearCost=yearRecords.reduce((a,r)=>a+Number(r.amount),0);
+ const yearLitres=yearRecords.reduce((a,r)=>a+Number(r.litres),0);
+ report+='<h2 style="margin-top:22px">Monthly spending report</h2>';
+ report+='<div class="formgrid" style="margin-bottom:12px"><div class="field"><label for="reportMonth">Choose month</label><select id="reportMonth" style="width:100%;background:#181617;border:1px solid #5a5355;border-radius:11px;color:var(--text);padding:12px;font:inherit">'+Array.from({length:12},(_,i)=>{const k=selectedYear+'-'+String(i+1).padStart(2,'0');return `<option value="${k}" ${k===selectedMonth?'selected':''}>${new Date(2000,i,1).toLocaleString('en',{month:'long'})}</option>`}).join('')+'</select></div><div class="field"><label for="reportYear">Choose year</label><select id="reportYear" style="width:100%;background:#181617;border:1px solid #5a5355;border-radius:11px;color:var(--text);padding:12px;font:inherit">'+([selectedYear,...years.filter(y=>y!==selectedYear)].map(y=>`<option value="${y}" ${y===selectedYear?'selected':''}>${y}</option>`).join(''))+'</select></div></div>';
+ report+='<div class="stats" style="margin-bottom:12px"><div class="stat"><div class="label">Selected month spending</div><div class="value">'+money(selected.cost)+'</div></div><div class="stat"><div class="label">Fuel this month</div><div class="value">'+num(selected.litres,3)+' <span class="unit">L</span></div></div><div class="stat"><div class="label">Refills this month</div><div class="value">'+selected.count+'</div></div><div class="stat"><div class="label">Year spending ('+escapeHtml(selectedYear)+')</div><div class="value">'+money(yearCost)+'</div></div></div>';
+ report+='<div class="entry"><div><strong>'+escapeHtml(selectedMonth)+' details</strong><small>'+selected.count+' fuel record(s) · '+num(selected.litres,3)+' L</small></div><div class="right"><strong>'+money(selected.cost)+'</strong></div></div>';
+ report+='<h2 style="margin-top:22px">Yearly summary · '+escapeHtml(selectedYear)+'</h2><div class="entry"><div><strong>Total fuel spending</strong></div><div class="right"><strong>'+money(yearCost)+'</strong></div></div><div class="entry"><div><strong>Total octane added</strong></div><div class="right"><strong>'+num(yearLitres,3)+' L</strong></div></div>';
+ report+='<h2 style="margin-top:22px">All months</h2>';
+ report+=months.length?months.map(k=>`<div class="entry"><div><strong>${escapeHtml(k)}</strong><small>${monthly[k].count} refuel record(s) · ${num(monthly[k].litres,3)} L</small></div><div class="right"><strong>${money(monthly[k].cost)}</strong></div></div>`).join(''):'<div class="empty">No monthly data yet. Add a fuel record to start tracking spending.</div>';
+ $('reportContent').innerHTML=report;
+ const monthSelect=$('reportMonth');if(monthSelect)monthSelect.addEventListener('change',()=>{window.reportSelectedMonth=monthSelect.value;render()});
+ const yearSelect=$('reportYear');if(yearSelect)yearSelect.addEventListener('change',()=>{window.reportSelectedMonth=yearSelect.value+'-'+selectedMonth.slice(5);render()});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+window.deleteRecord=id=>{if(confirm('Delete this fuel record?')){records=records.filter(r=>r.id!==id);save()}}
+function setDate(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('date').value=d.toISOString().slice(0,16)}setDate();
+$('price').value=settings.octanePrice;
+$('price').addEventListener('change',saveSettings);
+$('amount').addEventListener('input',()=>{const a=+$('amount').value,p=+$('price').value;if(a>0&&p>0)$('litreInput').value=(a/p).toFixed(3)});
+$('price').addEventListener('input',()=>{const a=+$('amount').value,p=+$('price').value;if(a>0&&p>0)$('litreInput').value=(a/p).toFixed(3)});
+$('litreInput').addEventListener('input',()=>{const l=+$('litreInput').value,p=+$('price').value;if(l>0&&p>0)$('amount').value=(l*p).toFixed(2)});
+$('fuelForm').addEventListener('submit',e=>{e.preventDefault();const date=$('date').value,odo=+$('odometer').value,price=+$('price').value;let amount=+$('amount').value,litres=+$('litreInput').value;
+ if(!date||!Number.isFinite(odo)||odo<0||price<=0){alert('Please enter a valid date, odometer and price per litre.');return}
+ if(!(litres>0)&&amount>0)litres=amount/price;if(!(amount>0)&&litres>0)amount=litres*price;
+ if(!(litres>0)||!(amount>0)){alert('Enter either the amount paid or litres added.');return}
+ if(Math.abs(amount-litres*price)>Math.max(2,amount*.03)){if(!confirm('Amount and litres do not match the price per litre. Save them anyway?'))return}
+ saveSettings();const s=sorted();const prev=s[s.length-1];if(prev&&odo<Number(prev.odo)){if(!confirm('This odometer reading is lower than your latest record. Save anyway? (Check for an entry mistake or odometer reset.)'))return}
+ records.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),date,odo,price,amount,litres,station:$('station').value.trim(),fullTank:$('fullTank').checked});
+ try{save()}catch(err){alert('Could not save data. Your browser storage may be full or disabled.');return}
+ $('fuelForm').reset();setDate();root.querySelector('[data-tab="history"]').click();alert('Fuel record saved on this device.');});
+root.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{root.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['add','history','report'].forEach(k=>$('panel-'+k).classList.toggle('hidden',k!==b.dataset.tab));if(b.dataset.tab==='report')render()}));
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('exportBtn').onclick=()=>download('my-fuel-tracker-backup.json',JSON.stringify(records,null,2),'application/json');
+$('csvBtn').onclick=()=>{const rows=[['Date','Odometer km','Amount BDT','Price per litre BDT','Litres','Full tank checkpoint','Station/note'],...sorted().map(r=>[r.date,r.odo,r.amount,r.price,r.litres,r.fullTank?'Yes':'No',r.station])];download('my-fuel-tracker.csv',rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8')};
+$('clearBtn').onclick=()=>{if(confirm('Delete ALL My Fuel Tracker records from this browser? This cannot be undone.')){records=[];save()}};
+
+const PRICE_META_KEY='myFuelTracker.priceMeta.v1';
+let priceMeta={checkedAt:null,updatedAt:null,appliedStamp:0,lastOk:null,source:''};
+try{priceMeta={...priceMeta,...JSON.parse(localStorage.getItem(PRICE_META_KEY)||'{}')}}catch(e){}
+function savePriceMeta(){try{localStorage.setItem(PRICE_META_KEY,JSON.stringify(priceMeta))}catch(e){}renderPriceStatus()}
+function renderPriceStatus(){
+ const price=Number(settings.octanePrice||165);
+ $('priceDisplay').innerHTML=money(price)+'<span class="unit">/L</span>';
+ const updated=priceMeta.updatedAt?'Updated automatically · '+new Date(priceMeta.updatedAt).toLocaleDateString():'Saved price';
+ $('priceStatus').textContent=updated;
+ let line;
+ if(!navigator.onLine)line='Offline · using saved price · updates automatically when connected';
+ else if(priceMeta.lastOk===false)line='Could not reach the price source · using saved price · will retry automatically';
+ else if(priceMeta.checkedAt)line='Last checked '+new Date(priceMeta.checkedAt).toLocaleString();
+ else line='Checking automatically when connected';
+ $('priceChecked').textContent=line;
+}
+const FEEDS=[
+ 'https://www.bing.com/news/search?q=Bangladesh+octane+price+per+litre&format=rss&setlang=en',
+ 'https://www.bing.com/news/search?q=Bangladesh+fuel+price+octane+Tk+litre&format=rss&setlang=en',
+ 'https://news.google.com/rss/search?q=Bangladesh+octane+price+when%3A45d&hl=en-BD&gl=BD&ceid=BD%3Aen'
+];
+const PROXIES=[
+ u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+ u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+ u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u)
+];
+async function getText(url,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('http '+r.status);return await r.text()}finally{clearTimeout(t)}}
+async function getFeed(feed){for(const p of PROXIES){try{const txt=await getText(p(feed),9000);if(/<item[\s>]/i.test(txt))return txt}catch(e){}}return null}
+function plain(s){try{return(new DOMParser().parseFromString('<body>'+s,'text/html').body.textContent||'').replace(/\s+/g,' ').trim()}catch(e){return String(s)}}
+function octaneFrom(text){
+ const re=/octane/ig;let m;
+ while((m=re.exec(text))){
+  let seg=text.slice(m.index,m.index+140);
+  const cut=seg.slice(6).search(/diesel|petrol|kerosene|\blpg\b/i);if(cut>=0)seg=seg.slice(0,cut+6);
+  for(const n of seg.matchAll(/(?:Tk\.?|Taka|BDT|৳)\s*(\d{2,3})(?:\.\d+)?|(\d{2,3})(?:\.\d+)?\s*(?:taka|tk\b)/gi)){
+   const v=Number(n[1]||n[2]);if(!(v>=100&&v<=300))continue;
+   if(/from\s*$/i.test(seg.slice(Math.max(0,n.index-8),n.index)))continue;
+   return v;
+  }
+  const pm=text.slice(Math.max(0,m.index-32),m.index).match(/(?:Tk\.?|৳)\s*(\d{3})\s*(?:per\s*lit(?:re|er)\s*)?(?:for|on)\s*$/i);
+  if(pm)return Number(pm[1]);
+ }
+ return null;
+}
+let checking=false;
+async function autoPrice(force){
+ if(checking)return;
+ if(!navigator.onLine){renderPriceStatus();return}
+ const last=priceMeta.checkedAt?Date.parse(priceMeta.checkedAt):0;
+ const gap=priceMeta.lastOk===false?20*60*1000:6*60*60*1000;
+ if(!force&&Date.now()-last<gap)return;
+ checking=true;
+ try{
+  const cutoff=Date.now()-45*24*60*60*1000;let reached=false,best=null;
+  for(const feed of FEEDS){
+   const xmlText=await getFeed(feed);if(!xmlText)continue;
+   const xml=new DOMParser().parseFromString(xmlText,'text/xml');
+   const items=[...xml.querySelectorAll('item')];if(!items.length)continue;
+   reached=true;
+   for(const it of items){
+    const title=it.querySelector('title')?.textContent||'',desc=it.querySelector('description')?.textContent||'';
+    const stamp=Date.parse(it.querySelector('pubDate')?.textContent||'');
+    if(!Number.isFinite(stamp)||stamp<cutoff)continue;
+    const text=plain(title+'. '+desc);if(!/octane/i.test(text))continue;
+    const value=octaneFrom(text);if(!value)continue;
+    if(!best||stamp>best.stamp)best={value,stamp,title:plain(title)};
+   }
+   if(best)break;
+  }
+  priceMeta.checkedAt=new Date().toISOString();priceMeta.lastOk=reached;
+  if(best&&best.stamp>(priceMeta.appliedStamp||0)){
+   settings.octanePrice=best.value;$('price').value=best.value;
+   try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}catch(e){}
+   priceMeta.appliedStamp=best.stamp;priceMeta.updatedAt=new Date().toISOString();priceMeta.source=best.title;
+  }
+  savePriceMeta();
+ }catch(e){priceMeta.checkedAt=new Date().toISOString();priceMeta.lastOk=false;savePriceMeta()}
+ finally{checking=false}
+}
+window.addEventListener('online',()=>autoPrice(true));
+window.addEventListener('offline',renderPriceStatus);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoPrice(false)});
+document.addEventListener('fuelshown',()=>{renderPriceStatus();autoPrice(false)});
+setInterval(()=>autoPrice(false),20*60*1000);
+render();renderPriceStatus();autoPrice(false);
+})();
+</script>
+</body></html>
