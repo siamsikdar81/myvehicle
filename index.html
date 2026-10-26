@@ -55,13 +55,17 @@ footer{text-align:center;color:#8d8789;font-size:12px;padding:28px 12px}
 <header><div class="logo">MV</div><div><div class="brand">MY VEHICLE</div><div class="tag">Your personal vehicle companion</div></div></header>
 <main>
 <section id="home" class="page active">
-  <div class="hero" id="hero"><div class="sky"><div class="sun"></div><div class="cloud"></div><div class="moon"></div><div class="hi">Welcome back</div></div><div class="avatar" id="avatar" title="Tap to change photo">👤</div><input type="file" id="avatarFile" accept="image/*" class="hidden"><div class="who" id="userName">Siam Sikdar</div></div>
+  <div class="hero" id="hero"><div class="sky"><div class="sun"></div><div class="cloud"></div><div class="moon"></div><div class="hi">Welcome back</div></div><div class="avatar" id="avatar" title="Tap to change photo">👤</div><input type="file" id="avatarFile" accept="image/*" class="hidden"><div class="who" id="userName"></div></div>
   <div class="grid home">
     <button class="menu" data-open="docs"><span class="ico">📁</span><span><strong>My V-Doc</strong><small>Save photos and scanned documents</small></span></button>
     <button class="menu" data-open="service"><span class="ico">⏰</span><span><strong>Service Alert</strong><small>Set date and time reminders</small></span></button>
     <button class="menu" data-open="fuel"><span class="ico">⛽</span><span><strong>Fuel Spending</strong><small>Refuels, history and monthly reports</small></span></button>
     <button class="menu blank" aria-label="Coming soon"></button>
   </div>
+  <div class="card"><strong>Backup &amp; restore</strong>
+   <p class="notice" style="margin:6px 0 0">Save all your documents, reminders, fuel records and photo in one file. Keep it in Google Drive or send it to yourself. Restore it on a new phone or after reinstalling.</p>
+   <div class="row"><button class="action alt" id="bkExport">Backup data</button><button class="action alt" id="bkImport">Restore data</button></div>
+   <input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="notice" id="bkInfo"></div></div>
 </section>
 
 <section id="docs" class="page">
@@ -204,8 +208,8 @@ setSky();document.addEventListener('visibilitychange',()=>{if(!document.hidden)s
 function showAvatar(){const a=$('avatar'),p=get('mv_avatar',null);a.style.backgroundImage=p?`url(${p})`:'';a.textContent=p?'':'👤'}
 $('avatar').addEventListener('click',()=>$('avatarFile').click());
 $('avatarFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),u=URL.createObjectURL(f);img.onload=()=>{const s=320,c=document.createElement('canvas');c.width=c.height=s;const m=Math.min(img.width,img.height);c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);try{set('mv_avatar',c.toDataURL('image/jpeg',.85))}catch(x){alert('Could not save the photo.')}URL.revokeObjectURL(u);showAvatar()};img.src=u;e.target.value=''});
-$('userName').textContent=get('mv_name','Siam Sikdar');
-$('userName').addEventListener('click',()=>{const n=prompt('Your name',get('mv_name','Siam Sikdar'));if(n&&n.trim()){set('mv_name',n.trim());$('userName').textContent=n.trim()}});
+const showName=()=>{const n=get('mv_name','');$('userName').textContent=n||'Tap to add your name';$('userName').style.opacity=n?1:.55};showName();
+$('userName').addEventListener('click',()=>{const n=prompt('Your name',get('mv_name',''));if(n!==null){set('mv_name',n.trim());showName()}});
 showAvatar();
 setTimeout(()=>$('splash').classList.add('hide'),2200);setTimeout(()=>$('splash').remove(),2800);
 
@@ -224,6 +228,25 @@ setTimeout(()=>$('splash').classList.add('hide'),2200);setTimeout(()=>$('splash'
  d.dispatchEvent(new Event('change'));t.dispatchEvent(new Event('change'));
 })();
 
+
+// Backup & restore (all data stays on this phone unless you export it)
+(function(){
+ const mine=k=>/^(mv_|myFuelTracker\.)/.test(k)&&k!=='mv_lastbackup';
+ const info=()=>{const d=localStorage.getItem('mv_lastbackup');$('bkInfo').textContent=d?'Last backup: '+new Date(d).toLocaleString():'No backup made yet.'};info();
+ $('bkExport').addEventListener('click',()=>{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(mine(k))data[k]=localStorage.getItem(k)}
+  if(!Object.keys(data).length){alert('There is no data to back up yet.');return}
+  const blob=new Blob([JSON.stringify({app:'myvehicle',version:1,saved:new Date().toISOString(),data})],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-vehicle-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  localStorage.setItem('mv_lastbackup',new Date().toISOString());info()});
+ $('bkImport').addEventListener('click',()=>$('bkFile').click());
+ $('bkFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();
+  r.onload=()=>{let j;try{j=JSON.parse(r.result)}catch(x){}
+   if(!j||j.app!=='myvehicle'||!j.data||typeof j.data!=='object'){alert('This is not a My Vehicle backup file.');return}
+   const keys=Object.keys(j.data).filter(mine);if(!keys.length){alert('The backup file is empty.');return}
+   if(!confirm('Restore '+keys.length+' items from this backup? It will replace the data currently on this phone.'))return;
+   try{const old=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(mine(k))old.push(k)}old.forEach(k=>localStorage.removeItem(k));keys.forEach(k=>localStorage.setItem(k,String(j.data[k])));alert('Backup restored.');location.reload()}catch(x){alert('Could not restore. Phone storage may be full.')}};
+  r.readAsText(f)});
+})();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 <script>
